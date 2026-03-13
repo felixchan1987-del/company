@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "CodeQuest Game",
+      "runtimeExecutable": "java",
+      "runtimeArgs": ["Server"],
+      "port": 3456
+    },
+    {
+      "name": "AI LeadingEdge Site",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "3457", "--directory", "ai-leadingedge"],
+      "port": 3457
+    }
+  ]
+}

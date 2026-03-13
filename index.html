@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeQuest 🚀 - Learn to Code!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0d0b1e;
+  --panel:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.12);
+  --move:#4ade80;
+  --move-dark:#166534;
+  --turn:#60a5fa;
+  --turn-dark:#1e3a8a;
+  --loop:#fbbf24;
+  --loop-dark:#78350f;
+  --gold:#ffd700;
+  --trick:#a855f7;
+  --trick-dark:#4c1d95;
+}
+
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  min-height:100vh;
+  color:#fff;
+  overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse at 20% 20%,rgba(124,58,237,0.15) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 80%,rgba(16,185,129,0.1) 0%,transparent 50%);
+}
+
+/* ── STARS BACKGROUND ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,0.8),transparent),
+    radial-gradient(1px 1px at 25% 45%,rgba(255,255,255,0.6),transparent),
+    radial-gradient(2px 2px at 40% 10%,rgba(255,255,255,0.9),transparent),
+    radial-gradient(1px 1px at 60% 35%,rgba(255,255,255,0.7),transparent),
+    radial-gradient(1px 1px at 75% 60%,rgba(255,255,255,0.5),transparent),
+    radial-gradient(2px 2px at 85% 25%,rgba(255,255,255,0.8),transparent),
+    radial-gradient(1px 1px at 15% 70%,rgba(255,255,255,0.6),transparent),
+    radial-gradient(1px 1px at 90% 80%,rgba(255,255,255,0.7),transparent),
+    radial-gradient(1px 1px at 50% 90%,rgba(255,255,255,0.5),transparent),
+    radial-gradient(2px 2px at 5% 50%,rgba(255,255,255,0.6),transparent),
+    radial-gradient(1px 1px at 70% 5%,rgba(255,255,255,0.8),transparent),
+    radial-gradient(1px 1px at 35% 75%,rgba(255,255,255,0.4),transparent);
+}
+
+/* ── HEADER ── */
+.header{
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 4px 30px rgba(124,58,237,0.5);
+  position:relative;z-index:10;
+}
+.logo{
+  font-family:'Fredoka One',cursive;font-size:2rem;
+  background:linear-gradient(135deg,#ffd700,#ff6b6b,#4ecdc4);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 8px rgba(255,215,0,0.4));
+}
+.level-info{text-align:center}
+.level-title{font-family:'Fredoka One',cursive;font-size:1.3rem;color:#ffd700}
+.level-desc{font-size:0.78rem;color:rgba(255,255,255,0.8);max-width:300px}
+.concept-badge{
+  display:inline-block;background:rgba(255,215,0,0.2);border:1px solid rgba(255,215,0,0.5);
+  border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#ffd700;margin-top:3px;
+}
+.progress-dots{display:flex;gap:8px;align-items:center}
+.dot{
+  width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;
+  cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.05);
+}
+.dot.completed{background:linear-gradient(135deg,#10b981,#059669);border-color:#34d399;box-shadow:0 0 10px rgba(16,185,129,0.5)}
+.dot.active{background:linear-gradient(135deg,#7c3aed,#4f46e5);border-color:#818cf8;box-shadow:0 0 10px rgba(124,58,237,0.5)}
+.dot.locked{opacity:0.3;cursor:not-allowed}
+.dot:not(.locked):hover{transform:scale(1.15)}
+
+/* ── MAIN LAYOUT ── */
+.game-container{
+  display:grid;
+  grid-template-columns:160px 1fr 360px;
+  gap:14px;padding:14px;
+  max-width:1300px;margin:0 auto;
+  position:relative;z-index:1;
+  min-height:calc(100vh - 70px);
+}
+
+/* ── PALETTE ── */
+.palette{
+  background:var(--panel);border:2px solid var(--border);
+  border-radius:20px;padding:14px;
+  backdrop-filter:blur(10px);
+  display:flex;flex-direction:column;gap:8px;
+}
+.palette-title{
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  color:var(--gold);text-align:center;margin-bottom:4px;
+}
+.block-item{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:12px;
+  font-weight:800;font-size:0.85rem;
+  border:3px solid rgba(0,0,0,0.25);
+  cursor:pointer;
+  transition:transform 0.15s,box-shadow 0.15s,opacity 0.2s;
+  position:relative;
+  user-select:none;
+}
+.block-item.selected{outline:3px solid #fff;outline-offset:2px;transform:translateX(5px) scale(1.08);box-shadow:0 0 18px rgba(255,255,255,0.6);animation:pulse-select 0.8s infinite alternate}
+@keyframes pulse-select{from{box-shadow:0 0 12px rgba(255,255,255,0.4)}to{box-shadow:0 0 22px rgba(255,255,255,0.8)}}
+.block-item:hover{transform:translateX(5px) scale(1.02);box-shadow:0 4px 15px rgba(0,0,0,0.35)}
+.block-item.b-move{background:var(--move);color:var(--move-dark)}
+.block-item.b-turn{background:var(--turn);color:var(--turn-dark)}
+.block-item.b-loop{background:var(--loop);color:var(--loop-dark)}
+.block-item.locked{opacity:0.3;cursor:not-allowed;pointer-events:none}
+.block-item.locked::after{content:'🔒';position:absolute;right:6px;font-size:0.9rem}
+.block-icon{font-size:1.1rem;flex-shrink:0}
+.palette-hint{
+  margin-top:auto;padding:10px;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);border-radius:10px;
+  font-size:0.72rem;color:rgba(255,255,255,0.6);line-height:1.4;
+}
+
+/* ── GAME WORLD ── */
+.game-world{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+}
+.world-label{font-family:'Fredoka One',cursive;font-size:1.1rem;color:#4ecdc4}
+.grid-wrap{
+  background:rgba(255,255,255,0.03);border:3px solid rgba(255,255,255,0.12);
+  border-radius:18px;padding:10px;
+  box-shadow:0 0 40px rgba(78,205,196,0.08);
+}
+.grid{display:grid;gap:3px}
+.cell{
+  width:62px;height:62px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;position:relative;overflow:hidden;
+  transition:background 0.2s;
+}
+.cell.c-empty{
+  background:#1a2f1e;
+  border:1px solid rgba(74,222,128,0.12);
+}
+.cell.c-empty::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 30%,rgba(74,222,128,0.06) 0%,transparent 70%);
+}
+.cell.c-wall{
+  background:linear-gradient(135deg,#3d1a08,#5a2d0c);
+  border:2px solid #7a4a1a;
+  border-bottom:4px solid #2a1004;
+}
+.cell.c-wall::after{
+  content:'🧱';font-size:2rem;
+}
+.cell.c-goal{
+  background:radial-gradient(circle,rgba(255,215,0,0.3),rgba(255,140,0,0.1));
+  border:2px solid rgba(255,215,0,0.6);
+  animation:goalPulse 2s ease-in-out infinite;
+}
+@keyframes goalPulse{
+  0%,100%{box-shadow:0 0 10px rgba(255,215,0,0.4),inset 0 0 10px rgba(255,215,0,0.1)}
+  50%{box-shadow:0 0 25px rgba(255,215,0,0.7),inset 0 0 20px rgba(255,215,0,0.2)}
+}
+.cell.c-robot{background:rgba(96,165,250,0.12);border:2px solid rgba(96,165,250,0.3)}
+.cell.c-robot-goal{background:rgba(255,215,0,0.2);border:2px solid rgba(255,215,0,0.6)}
+.robot-sprite{font-size:2.2rem;display:inline-block;transition:transform 0.25s ease}
+.robot-sprite.dir-0{transform:rotate(-90deg)}
+.robot-sprite.dir-1{transform:rotate(0deg)}
+.robot-sprite.dir-2{transform:rotate(90deg)}
+.robot-sprite.dir-3{transform:rotate(180deg)}
+.robot-sprite.bounce{animation:robotBounce 0.3s ease}
+@keyframes robotBounce{0%,100%{transform:scale(1) rotate(var(--rot,0deg))}50%{transform:scale(1.2) rotate(var(--rot,0deg))}}
+.cell.c-error{animation:cellError 0.5s ease}
+@keyframes cellError{0%,100%{background:#1a2f1e}25%,75%{background:rgba(239,68,68,0.4)}}
+.cell.step-highlight{animation:stepGlow 0.4s ease}
+@keyframes stepGlow{0%,100%{outline:none}50%{outline:3px solid rgba(255,215,0,0.8)}}
+
+/* ── CODE PANEL ── */
+.code-panel{
+  background:var(--panel);border:2px solid var(--border);
+  border-radius:20px;padding:14px;
+  display:flex;flex-direction:column;gap:10px;
+  backdrop-filter:blur(10px);
+}
+.code-title{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--gold);text-align:center}
+.program-area{
+  flex:1;min-height:280px;max-height:350px;
+  background:rgba(0,0,0,0.2);
+  border:2px dashed rgba(255,255,255,0.18);
+  border-radius:14px;padding:10px;
+  overflow-y:auto;transition:border-color 0.2s,background 0.2s;
+}
+.program-area.drag-over{
+  border-color:var(--gold);
+  background:rgba(255,215,0,0.04);
+}
+.program-area::-webkit-scrollbar{width:6px}
+.program-area::-webkit-scrollbar-track{background:transparent}
+.program-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:3px}
+.pa-hint{
+  text-align:center;color:rgba(255,255,255,0.25);
+  font-size:0.85rem;padding:40px 20px;font-style:italic;
+  pointer-events:none;
+}
+.prog-block{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 12px;border-radius:10px;
+  margin-bottom:5px;font-weight:800;font-size:0.85rem;
+  border:2px solid rgba(0,0,0,0.2);
+  cursor:pointer;position:relative;
+  animation:blockIn 0.2s cubic-bezier(0.175,0.885,0.32,1.275);
+  transition:filter 0.15s,transform 0.15s;
+}
+@keyframes blockIn{from{transform:translateX(-20px) scale(0.8);opacity:0}to{transform:none;opacity:1}}
+.prog-block:hover{filter:brightness(1.15)}
+.prog-block::after{
+  content:'✕';position:absolute;right:10px;
+  color:rgba(0,0,0,0.4);font-size:0.8rem;font-weight:bold;
+  opacity:0;transition:opacity 0.15s;
+}
+.prog-block:hover::after{opacity:1}
+.prog-block.b-move{background:var(--move);color:var(--move-dark)}
+.prog-block.b-turn{background:var(--turn);color:var(--turn-dark)}
+.prog-block.active-step{
+  box-shadow:0 0 0 3px #fff,0 0 20px rgba(255,255,255,0.5);
+  transform:scale(1.04);filter:brightness(1.2);
+}
+
+/* loop container */
+.loop-container{
+  border:2px solid var(--loop);border-radius:12px;
+  margin-bottom:5px;overflow:hidden;
+  animation:blockIn 0.2s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.loop-header{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 12px;background:var(--loop);color:var(--loop-dark);
+  font-weight:800;font-size:0.85rem;cursor:pointer;
+  transition:filter 0.15s;
+}
+.loop-header:hover{filter:brightness(1.1)}
+.loop-header::after{content:'✕';margin-left:auto;color:rgba(0,0,0,0.4);font-size:0.8rem;opacity:0;transition:opacity 0.15s}
+.loop-header:hover::after{opacity:1}
+.loop-count-ctrl{display:flex;align-items:center;gap:4px;margin-left:8px;margin-right:2px;cursor:default}
+.loop-count-ctrl:click{pointer-events:none}
+.lcb{
+  background:rgba(0,0,0,0.25);border:none;color:var(--loop-dark);
+  width:20px;height:20px;border-radius:50%;cursor:pointer;
+  font-size:1rem;font-weight:bold;display:flex;align-items:center;justify-content:center;
+  line-height:1;transition:background 0.15s;
+}
+.lcb:hover{background:rgba(0,0,0,0.4)}
+.lc-num{
+  font-family:'Fredoka One',cursive;font-size:1.1rem;min-width:18px;
+  text-align:center;color:var(--loop-dark);
+}
+.loop-body{
+  padding:6px 8px;min-height:42px;
+  border-top:2px dashed rgba(251,191,36,0.3);
+  transition:background 0.2s;
+}
+.loop-body.drag-over{background:rgba(251,191,36,0.06)}
+.loop-body-hint{
+  text-align:center;color:rgba(251,191,36,0.35);font-size:0.78rem;padding:8px;
+  pointer-events:none;
+}
+.loop-container.active-step>.loop-header{
+  box-shadow:0 0 0 3px #fff,0 0 15px rgba(255,255,255,0.4);
+  filter:brightness(1.2);
+}
+
+/* ── CONTROLS ── */
+.controls{display:flex;gap:8px}
+.btn{
+  flex:1;padding:13px 8px;border:none;border-radius:14px;
+  font-family:'Fredoka One',cursive;font-size:1.05rem;
+  cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.3)}
+.btn:active:not(:disabled){transform:translateY(0)}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.btn-run{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 4px 15px rgba(16,185,129,0.4)}
+.btn-reset{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 4px 15px rgba(245,158,11,0.3)}
+.btn-clear{background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;box-shadow:0 4px 15px rgba(239,68,68,0.3)}
+
+/* ── MESSAGE BOX ── */
+.msg-box{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;padding:10px 14px;font-size:0.88rem;
+  text-align:center;min-height:46px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.3s;
+}
+.msg-box.msg-ok{background:rgba(16,185,129,0.15);border-color:#10b981;color:#6ee7b7}
+.msg-box.msg-err{background:rgba(239,68,68,0.15);border-color:#ef4444;color:#fca5a5}
+.msg-box.msg-hint{background:rgba(99,102,241,0.15);border-color:#6366f1;color:#c7d2fe}
+
+/* ── CELEBRATION ── */
+.celebration{
+  position:fixed;inset:0;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.75);z-index:100;backdrop-filter:blur(6px);
+}
+.celebration.show{display:flex}
+.cel-card{
+  background:linear-gradient(135deg,#4f46e5,#7c3aed,#a855f7);
+  border:4px solid var(--gold);border-radius:28px;
+  padding:40px 60px;text-align:center;
+  box-shadow:0 0 80px rgba(255,215,0,0.35);
+  animation:cardPop 0.55s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+@keyframes cardPop{from{transform:scale(0.4) rotate(-5deg);opacity:0}to{transform:none;opacity:1}}
+.cel-emoji{font-size:5rem;animation:floatBounce 0.6s ease-in-out infinite alternate}
+@keyframes floatBounce{from{transform:translateY(0)}to{transform:translateY(-18px)}}
+.cel-title{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--gold);margin:12px 0 6px}
+.cel-msg{font-size:1.1rem;color:rgba(255,255,255,0.9);margin-bottom:24px}
+.cel-stars{font-size:2.5rem;margin-bottom:16px;animation:starReveal 0.5s ease}
+@keyframes starReveal{from{transform:scale(0)}to{transform:scale(1)}}
+.btn-next{
+  background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a0533;
+  padding:14px 44px;border:none;border-radius:50px;
+  font-family:'Fredoka One',cursive;font-size:1.25rem;cursor:pointer;
+  box-shadow:0 6px 25px rgba(255,215,0,0.5);
+  transition:transform 0.15s,box-shadow 0.15s;
+}
+.btn-next:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(255,215,0,0.6)}
+
+/* confetti */
+.confetti-piece{
+  position:fixed;border-radius:3px;pointer-events:none;z-index:99;
+  animation:confettiFall var(--dur,3s) linear var(--delay,0s) forwards;
+}
+@keyframes confettiFall{
+  from{transform:translateY(-60px) rotate(0deg);opacity:1}
+  to{transform:translateY(110vh) rotate(var(--spin,480deg));opacity:0}
+}
+
+/* ── ERROR SHAKE ── */
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%,60%{transform:translateX(-8px)}
+  40%,80%{transform:translateX(8px)}
+}
+.shake{animation:shake 0.4s ease}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:3px}
+
+/* ── IF-WALL BLOCK ── */
+.block-item.b-if{background:#f472b6;color:#831843}
+.prog-block.b-if{background:#f472b6;color:#831843}
+.if-container{
+  border:2px solid #f472b6;border-radius:12px;
+  margin-bottom:5px;overflow:hidden;
+  animation:blockIn 0.2s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.if-header{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 12px;background:#f472b6;color:#831843;
+  font-weight:800;font-size:0.85rem;cursor:pointer;
+  transition:filter 0.15s;
+}
+.if-header:hover{filter:brightness(1.1)}
+.if-header::after{content:'✕';margin-left:auto;color:rgba(0,0,0,0.4);font-size:0.8rem;opacity:0;transition:opacity 0.15s}
+.if-header:hover::after{opacity:1}
+.if-body{
+  padding:6px 8px;min-height:42px;
+  border-top:2px dashed rgba(244,114,182,0.3);
+  transition:background 0.2s;
+}
+.if-body.drag-over{background:rgba(244,114,182,0.06)}
+.if-body-hint{
+  text-align:center;color:rgba(244,114,182,0.4);font-size:0.78rem;padding:8px;
+  pointer-events:none;
+}
+.if-container.active-step>.if-header{
+  box-shadow:0 0 0 3px #fff,0 0 15px rgba(255,255,255,0.4);
+  filter:brightness(1.2);
+}
+
+/* ── GEM CELL ── */
+.cell.c-gem{
+  background:radial-gradient(circle,rgba(96,165,250,0.25),rgba(147,51,234,0.1));
+  border:2px solid rgba(147,51,234,0.5);
+  animation:gemPulse 1.8s ease-in-out infinite;
+}
+@keyframes gemPulse{
+  0%,100%{box-shadow:0 0 8px rgba(147,51,234,0.3)}
+  50%{box-shadow:0 0 18px rgba(147,51,234,0.6)}
+}
+.cell.c-gem-collected{
+  background:rgba(147,51,234,0.08);border:1px solid rgba(147,51,234,0.15);
+}
+.gem-counter{
+  display:flex;align-items:center;gap:6px;
+  font-family:'Fredoka One',cursive;font-size:1rem;color:#a78bfa;
+  min-height:24px;
+}
+.gem-counter .gc-icon{font-size:1.2rem}
+.gem-counter .gc-text{font-size:0.85rem;color:rgba(255,255,255,0.7)}
+.gem-counter.hidden{display:none}
+
+/* ── CODE VIEW ── */
+.code-view-wrap{position:relative}
+.code-view-toggle{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  border-radius:8px;padding:6px 12px;color:#c7d2fe;
+  font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;
+  cursor:pointer;width:100%;text-align:center;
+  transition:background 0.15s;
+}
+.code-view-toggle:hover{background:rgba(255,255,255,0.12)}
+.code-view{
+  background:#0d0b1e;border:1px solid rgba(99,102,241,0.3);
+  border-radius:10px;padding:12px;margin-top:6px;
+  font-family:'Courier New',monospace;font-size:0.82rem;
+  line-height:1.6;overflow-x:auto;
+  max-height:180px;overflow-y:auto;
+  display:none;
+}
+.code-view.show{display:block}
+.code-view .kw{color:#c084fc}
+.code-view .fn{color:#4ade80}
+.code-view .num{color:#fbbf24}
+.code-view .br{color:#94a3b8}
+.code-view .cm{color:#64748b;font-style:italic}
+
+/* ── WORLD LABELS ── */
+.world-divider{
+  width:2px;height:20px;background:rgba(255,255,255,0.15);
+  border-radius:1px;margin:0 2px;
+}
+.world-tag{
+  font-size:0.55rem;color:rgba(255,255,255,0.4);
+  font-weight:800;text-transform:uppercase;letter-spacing:0.5px;
+  writing-mode:vertical-lr;transform:rotate(180deg);
+  max-height:60px;overflow:hidden;
+}
+
+/* ── TRICK BLOCK ── */
+.block-item.b-trick{background:var(--trick);color:var(--trick-dark)}
+.prog-block.b-trick{background:var(--trick);color:var(--trick-dark)}
+.trick-define-area{
+  background:rgba(168,85,247,0.08);border:2px dashed rgba(168,85,247,0.3);
+  border-radius:14px;padding:10px;margin-bottom:8px;display:none;
+}
+.trick-define-title{
+  font-family:'Fredoka One',cursive;font-size:0.85rem;
+  color:var(--trick);text-align:center;margin-bottom:6px;
+}
+.trick-define-zone{
+  min-height:50px;background:rgba(0,0,0,0.15);
+  border:2px dashed rgba(168,85,247,0.2);border-radius:10px;padding:6px;
+  transition:border-color 0.2s,background 0.2s;
+}
+.trick-define-zone.drag-over{border-color:var(--trick);background:rgba(168,85,247,0.06)}
+.trick-hint{
+  text-align:center;color:rgba(168,85,247,0.4);font-size:0.78rem;
+  padding:10px;pointer-events:none;
+}
+
+/* ── HEADER BUTTONS ── */
+.header-btns{display:flex;gap:6px;align-items:center}
+.btn-hdr{
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
+  border-radius:8px;padding:6px 10px;font-size:0.82rem;cursor:pointer;
+  transition:background 0.15s;color:#fff;font-family:'Nunito',sans-serif;font-weight:700;
+}
+.btn-hdr:hover{background:rgba(255,255,255,0.22)}
+
+/* ── BADGE BAR ── */
+.badge-bar{
+  background:rgba(255,255,255,0.04);padding:0 20px;position:relative;z-index:9;
+}
+.badge-toggle{
+  background:none;border:none;color:#ffd700;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:0.85rem;
+  cursor:pointer;padding:6px 0;
+}
+.badge-toggle:hover{color:#fff}
+.badge-panel{display:none;flex-wrap:wrap;gap:8px;padding:8px 0 12px}
+.badge-panel.show{display:flex}
+.badge-item{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;padding:6px 10px;font-size:0.78rem;color:rgba(255,255,255,0.5);
+  transition:all 0.3s;
+}
+.badge-item.earned{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);color:#ffd700}
+.badge-item .badge-emoji{font-size:1.2rem;filter:grayscale(1) opacity(0.4)}
+.badge-item.earned .badge-emoji{filter:none}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;top:80px;right:20px;z-index:300;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  border:2px solid #ffd700;border-radius:14px;padding:12px 20px;
+  display:none;align-items:center;gap:10px;
+  box-shadow:0 8px 30px rgba(124,58,237,0.5);
+  animation:toastIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.toast.show{display:flex}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:none;opacity:1}}
+.toast-emoji{font-size:1.5rem}
+.toast-text{font-weight:800;font-size:0.9rem}
+
+/* ── STAR DOTS ── */
+.dot{position:relative}
+.dot.dot-3star{box-shadow:0 0 10px rgba(255,215,0,0.8);border-color:#ffd700}
+.dot.dot-3star::after{content:'⭐';position:absolute;bottom:-6px;right:-4px;font-size:0.5rem}
+.dot.dot-2star::after{content:'⭐';position:absolute;bottom:-6px;right:-4px;font-size:0.4rem;opacity:0.6}
+
+/* ── CELEBRATION OPT HINT ── */
+.cel-opt-hint{font-size:0.85rem;color:rgba(255,255,255,0.7);margin-bottom:12px;font-style:italic}
+
+/* ── SANDBOX ── */
+.sandbox-overlay{
+  position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.92);
+  backdrop-filter:blur(8px);overflow-y:auto;display:none;
+}
+.sandbox-overlay.show{display:block}
+.sandbox-container{max-width:1100px;margin:0 auto;padding:16px}
+.sandbox-header{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;
+}
+.sandbox-title{font-family:'Fredoka One',cursive;font-size:1.5rem;color:#ffd700}
+.sandbox-tools{display:flex;gap:6px}
+.stool{
+  background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.15);
+  border-radius:8px;padding:8px 12px;font-size:1.1rem;cursor:pointer;transition:all 0.15s;
+}
+.stool:hover{background:rgba(255,255,255,0.15)}
+.stool.active{border-color:#ffd700;background:rgba(255,215,0,0.15)}
+.sandbox-actions{display:flex;gap:6px;margin-left:auto}
+.sbtn{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);
+  border-radius:8px;padding:6px 14px;color:#fff;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:0.82rem;
+  cursor:pointer;transition:background 0.15s;
+}
+.sbtn:hover{background:rgba(255,255,255,0.15)}
+.sbtn-close{border-color:#ef4444;color:#fca5a5}
+.sandbox-body{display:grid;grid-template-columns:1fr 340px;gap:14px}
+.sandbox-grid-wrap{
+  background:rgba(255,255,255,0.03);border:3px solid rgba(255,255,255,0.12);
+  border-radius:18px;padding:10px;
+}
+.sandbox-grid-wrap .cell{cursor:crosshair}
+.sandbox-code-panel{display:flex;flex-direction:column;gap:8px}
+.sandbox-palette{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.sandbox-palette .block-item{padding:6px 10px;font-size:0.78rem}
+
+/* responsive */
+@media(max-width:960px){
+  .game-container{grid-template-columns:1fr;grid-template-rows:auto auto auto}
+  .palette{flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .palette-hint{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🚀 CodeQuest!</div>
+  <div class="level-info">
+    <div class="level-title" id="hdr-title">Level 1 - First Steps</div>
+    <div class="level-desc" id="hdr-desc">Move Cody to the golden star!</div>
+    <div><span class="concept-badge" id="hdr-concept">Concept: Sequences</span></div>
+  </div>
+  <div class="header-btns">
+    <button class="btn-hdr" id="btn-mute" onclick="toggleSound()" title="Toggle Sound">🔊</button>
+    <button class="btn-hdr" id="btn-sandbox" onclick="openSandbox()">🎨 Create</button>
+    <button class="btn-hdr" id="btn-reset-progress" onclick="resetProgress()" title="Reset Progress" style="font-size:0.75rem">🔄</button>
+  </div>
+  <div class="progress-dots" id="progress-dots"></div>
+</div>
+
+<div class="badge-bar" id="badge-bar">
+  <button class="badge-toggle" id="badge-toggle" onclick="toggleBadgePanel()">🏅 Badges <span id="badge-count">0/10</span></button>
+  <div class="badge-panel" id="badge-panel"></div>
+</div>
+
+<div class="game-container">
+  <!-- PALETTE -->
+  <div class="palette">
+    <div class="palette-title">🧩 Blocks</div>
+    <div class="block-item b-move" data-type="move" id="blk-move">
+      <span class="block-icon">➡️</span> Move
+    </div>
+    <div class="block-item b-turn" data-type="turn-left" id="blk-turn-left">
+      <span class="block-icon">↰</span> Turn Left
+    </div>
+    <div class="block-item b-turn" data-type="turn-right" id="blk-turn-right">
+      <span class="block-icon">↱</span> Turn Right
+    </div>
+    <div class="block-item b-loop" data-type="repeat" id="blk-repeat">
+      <span class="block-icon">🔄</span> Repeat
+    </div>
+    <div class="block-item b-if" data-type="if-wall" id="blk-if-wall">
+      <span class="block-icon">🚧</span> If Wall
+    </div>
+    <div class="block-item b-trick" data-type="trick" id="blk-trick">
+      <span class="block-icon">🎩</span> My Trick
+    </div>
+    <div class="palette-hint" id="level-hint">💡 Tip: Click a block, then click where to place it!</div>
+  </div>
+
+  <!-- GAME WORLD -->
+  <div class="game-world">
+    <div class="world-label">🌍 Game World</div>
+    <div class="grid-wrap">
+      <div class="grid" id="grid"></div>
+    </div>
+    <div class="gem-counter hidden" id="gem-counter">
+      <span class="gc-icon">💎</span>
+      <span id="gem-count">0 / 0</span>
+      <span class="gc-text">gems</span>
+    </div>
+  </div>
+
+  <!-- CODE PANEL -->
+  <div class="code-panel">
+    <div class="code-title">📝 Your Program</div>
+    <div class="trick-define-area" id="trick-define-area">
+      <div class="trick-define-title">🎩 Define Your Trick</div>
+      <div class="trick-define-zone" id="trick-define-zone">
+        <div class="trick-hint" id="trick-hint">Click a block, then click here to add it!</div>
+      </div>
+    </div>
+    <div class="program-area" id="program-area">
+      <div class="pa-hint" id="pa-hint">👆 Click a block, then click here!</div>
+    </div>
+    <div class="code-view-wrap">
+      <button class="code-view-toggle" id="code-toggle" onclick="toggleCodeView()">👁 Show Code</button>
+      <pre class="code-view" id="code-view"></pre>
+    </div>
+    <div class="msg-box" id="msg-box">🤖 Build your program and press Run!</div>
+    <div class="controls">
+      <button class="btn btn-run" id="btn-run" onclick="runProgram()">▶ Run</button>
+      <button class="btn btn-reset" id="btn-reset" onclick="resetLevel()">↺ Reset</button>
+      <button class="btn btn-clear" id="btn-clear" onclick="clearProgram()">🗑 Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- CELEBRATION -->
+<div class="celebration" id="celebration">
+  <div class="cel-card">
+    <div class="cel-emoji" id="cel-emoji">🎉</div>
+    <div class="cel-title" id="cel-title">Amazing!</div>
+    <div class="cel-stars" id="cel-stars">⭐⭐⭐</div>
+    <div class="cel-opt-hint" id="cel-opt-hint"></div>
+    <div class="cel-msg" id="cel-msg">You solved the level!</div>
+    <button class="btn-next" id="btn-next" onclick="nextLevel()">Next Level →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-emoji" id="toast-emoji"></span>
+  <span class="toast-text" id="toast-text"></span>
+</div>
+
+<!-- SANDBOX -->
+<div class="sandbox-overlay" id="sandbox-overlay">
+  <div class="sandbox-container">
+    <div class="sandbox-header">
+      <span class="sandbox-title">🎨 Creative Sandbox</span>
+      <div class="sandbox-tools">
+        <button class="stool active" id="stool-wall" onclick="setSandboxTool('wall')" title="Toggle Wall">🧱</button>
+        <button class="stool" id="stool-gem" onclick="setSandboxTool('gem')" title="Toggle Gem">💎</button>
+        <button class="stool" id="stool-start" onclick="setSandboxTool('start')" title="Set Start">🤖</button>
+        <button class="stool" id="stool-goal" onclick="setSandboxTool('goal')" title="Set Goal">⭐</button>
+        <button class="stool" id="stool-erase" onclick="setSandboxTool('erase')" title="Erase">🧹</button>
+      </div>
+      <div class="sandbox-actions">
+        <button class="sbtn" onclick="sandboxShare()">📤 Share</button>
+        <button class="sbtn" onclick="sandboxLoad()">📥 Load</button>
+        <button class="sbtn sbtn-close" onclick="closeSandbox()">✕ Close</button>
+      </div>
+    </div>
+    <div class="sandbox-body">
+      <div class="sandbox-grid-wrap">
+        <div class="grid" id="sandbox-grid"></div>
+      </div>
+      <div class="sandbox-code-panel">
+        <div class="palette-title">🧩 Blocks</div>
+        <div class="sandbox-palette" id="sandbox-palette"></div>
+        <div class="program-area" id="sandbox-program-area">
+          <div class="pa-hint">Click a block, then click here!</div>
+        </div>
+        <div class="controls">
+          <button class="btn btn-run" onclick="runSandbox()">▶ Run</button>
+          <button class="btn btn-reset" onclick="resetSandbox()">↺ Reset</button>
+          <button class="btn btn-clear" onclick="clearSandboxProgram()">🗑 Clear</button>
+        </div>
+        <div class="msg-box" id="sandbox-msg">🎨 Build your world, then code!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  LEVELS  (20 levels, 5 worlds)
+// ─────────────────────────────────────────────
+// Directions: 0=up, 1=right, 2=down, 3=left
+const LEVELS = [
+  // ── WORLD 1: COMMAND CENTER ──
+  {id:1,name:"First Steps",emoji:"🐣",concept:"Sequences",world:1,worldName:"Command Center",
+   desc:"Move Cody to the ⭐ star! Click 'Move' blocks to add them, then press Run!",
+   hint:"💡 Click 4 'Move' blocks and press Run!",
+   gridW:5,gridH:3,start:{x:0,y:1,dir:1},goal:{x:4,y:1},walls:[],gems:[],
+   available:['move'],optimalBlocks:4},
+  {id:2,name:"Turn It!",emoji:"🐥",concept:"Turns",world:1,worldName:"Command Center",
+   desc:"Cody needs to turn a corner! Use Turn Left and Turn Right blocks.",
+   hint:"💡 Move right 4 times, then Turn Right, then move down 4 times!",
+   gridW:5,gridH:5,start:{x:0,y:0,dir:1},goal:{x:4,y:4},walls:[],gems:[],
+   available:['move','turn-left','turn-right'],optimalBlocks:9},
+  {id:3,name:"Dodge It!",emoji:"🦊",concept:"Planning",world:1,worldName:"Command Center",
+   desc:"Watch out for walls 🧱! Plan your path around them.",
+   hint:"💡 Go right 2, Turn Right, down 4, Turn Left, right 3!",
+   gridW:6,gridH:6,start:{x:0,y:0,dir:1},goal:{x:5,y:5},
+   walls:[{x:3,y:0},{x:3,y:1},{x:3,y:2},{x:3,y:3}],gems:[],
+   available:['move','turn-left','turn-right'],optimalBlocks:14},
+  {id:4,name:"Loop-de-Loop!",emoji:"🔄",concept:"Loops",world:1,worldName:"Command Center",
+   desc:"Use 'Repeat' to do things many times! Click blocks INSIDE the Repeat to loop them.",
+   hint:"💡 Put Move inside Repeat (set count to 6) — much shorter than 6 Move blocks!",
+   gridW:7,gridH:3,start:{x:0,y:1,dir:1},goal:{x:6,y:1},walls:[],gems:[],
+   available:['move','turn-left','turn-right','repeat'],optimalBlocks:2},
+  {id:5,name:"Champion!",emoji:"🏆",concept:"All Together!",world:1,worldName:"Command Center",
+   desc:"Use loops AND turns to solve this big challenge!",
+   hint:"💡 Move 2, Turn Right, Move 3, Turn Left, Move 4, Turn Right, Move 3!",
+   gridW:7,gridH:7,start:{x:0,y:0,dir:1},goal:{x:6,y:6},
+   walls:[{x:3,y:0},{x:3,y:1},{x:3,y:2},{x:5,y:4},{x:5,y:5},{x:5,y:6}],gems:[],
+   available:['move','turn-left','turn-right','repeat'],optimalBlocks:8},
+  // ── WORLD 2: PATTERN POWER ──
+  {id:6,name:"Staircase",emoji:"🪜",concept:"Loop Patterns",world:2,worldName:"Pattern Power",
+   desc:"Use a loop to walk a staircase! One Repeat can replace MANY blocks.",
+   hint:"💡 repeat(5) { Move, Turn Right, Move, Turn Left } makes a staircase!",
+   gridW:6,gridH:6,start:{x:0,y:0,dir:1},goal:{x:5,y:5},walls:[],gems:[],
+   available:['move','turn-left','turn-right','repeat'],optimalBlocks:5},
+  {id:7,name:"Gem Path",emoji:"💎",concept:"Collecting",world:2,worldName:"Pattern Power",
+   desc:"NEW: Collect all 💎 gems AND reach the star! Walk over gems to pick them up.",
+   hint:"💡 Walk through every gem, then reach the ⭐!",
+   gridW:5,gridH:3,start:{x:0,y:1,dir:1},goal:{x:4,y:1},walls:[],
+   gems:[{x:1,y:1},{x:2,y:1},{x:3,y:1}],
+   available:['move'],optimalBlocks:4},
+  {id:8,name:"Gem Maze",emoji:"🏰",concept:"Gems + Turns",world:2,worldName:"Pattern Power",
+   desc:"Navigate the path and collect ALL gems to complete the level!",
+   hint:"💡 Move 4 right, Turn Right, move 4 down — grab all gems on the way!",
+   gridW:5,gridH:5,start:{x:0,y:0,dir:1},goal:{x:4,y:4},walls:[],
+   gems:[{x:2,y:0},{x:4,y:1},{x:4,y:3}],
+   available:['move','turn-left','turn-right','repeat'],optimalBlocks:6},
+  // ── WORLD 3: THINK LIKE A CODER ──
+  {id:9,name:"If Wall!",emoji:"🚧",concept:"Conditionals",world:3,worldName:"Think Like a Coder",
+   desc:"NEW: 'If Wall Ahead' checks for walls! If a wall IS ahead, it runs the blocks inside.",
+   hint:"💡 Move 3 times, If Wall { Turn Right }, Move, Turn Left, Move 2!",
+   gridW:6,gridH:4,start:{x:0,y:1,dir:1},goal:{x:5,y:2},
+   walls:[{x:4,y:1}],gems:[],
+   available:['move','turn-left','turn-right','repeat','if-wall'],optimalBlocks:8},
+  {id:10,name:"Smart Bot",emoji:"🧠",concept:"Conditional Loops",world:3,worldName:"Think Like a Coder",
+   desc:"Combine If Wall with Repeat to make a robot that navigates AUTOMATICALLY!",
+   hint:"💡 repeat(7) { If Wall { Turn Right }, Move } — the bot avoids walls on its own!",
+   gridW:5,gridH:5,start:{x:0,y:0,dir:1},goal:{x:3,y:4},
+   walls:[{x:4,y:0}],gems:[],
+   available:['move','turn-left','turn-right','repeat','if-wall'],optimalBlocks:4},
+  {id:11,name:"Debug It!",emoji:"🐛",concept:"Debugging",world:3,worldName:"Think Like a Coder",
+   desc:"🐛 This program has a BUG! The repeat count is wrong. Can you fix it?",
+   hint:"💡 Click + or − on the Repeat block to change how many times it runs!",
+   gridW:5,gridH:3,start:{x:0,y:1,dir:1},goal:{x:4,y:1},walls:[],gems:[],
+   available:['move','turn-left','turn-right','repeat'],
+   startProgram:[{type:'repeat',count:3,body:[{type:'move'}]}],optimalBlocks:2},
+  // ── WORLD 4: CODE KINGDOM ──
+  {id:12,name:"Gem Hunter",emoji:"💎",concept:"Gems + Planning",world:4,worldName:"Code Kingdom",
+   desc:"Navigate the maze, collect ALL gems, and reach the star!",
+   hint:"💡 Move right, collect gem, go down around the wall, collect more gems!",
+   gridW:6,gridH:6,start:{x:0,y:0,dir:1},goal:{x:5,y:5},
+   walls:[{x:3,y:0},{x:3,y:1},{x:3,y:2},{x:3,y:3}],
+   gems:[{x:2,y:0},{x:2,y:4},{x:5,y:4}],
+   available:['move','turn-left','turn-right','repeat'],optimalBlocks:10},
+  {id:13,name:"The Labyrinth",emoji:"🏛️",concept:"Complex Planning",world:4,worldName:"Code Kingdom",
+   desc:"A big maze awaits! Use everything you know to find the path.",
+   hint:"💡 Move 1, Turn Right, Move 3 down, Turn Left, Move 5 right, Turn Right, Move 3!",
+   gridW:7,gridH:7,start:{x:0,y:0,dir:1},goal:{x:6,y:6},
+   walls:[{x:2,y:0},{x:2,y:1},{x:2,y:2},{x:4,y:4},{x:4,y:5},{x:4,y:6},{x:0,y:4},{x:1,y:4},{x:2,y:4}],
+   gems:[],
+   available:['move','turn-left','turn-right','repeat','if-wall'],optimalBlocks:8},
+  {id:14,name:"Bug Squash",emoji:"🔧",concept:"Debug + Conditionals",world:4,worldName:"Code Kingdom",
+   desc:"🐛 The turn direction inside If Wall is WRONG! Can you fix the bug?",
+   hint:"💡 Click the wrong Turn block inside If Wall to remove it, then drag the correct one in!",
+   gridW:5,gridH:5,start:{x:0,y:0,dir:1},goal:{x:3,y:4},
+   walls:[{x:4,y:0}],gems:[],
+   available:['move','turn-left','turn-right','repeat','if-wall'],
+   startProgram:[{type:'repeat',count:7,body:[{type:'if-wall',body:[{type:'turn-left'}]},{type:'move'}]}],optimalBlocks:4},
+  {id:15,name:"Code Master!",emoji:"👑",concept:"Everything!",world:4,worldName:"Code Kingdom",
+   desc:"Big challenge! Loops, conditionals, gems, and planning — show your skills!",
+   hint:"💡 Move 3 right, Turn Right, Move 3 down, Turn Left, Move 3 right, Turn Right, Move 3!",
+   gridW:7,gridH:7,start:{x:0,y:0,dir:1},goal:{x:6,y:6},
+   walls:[{x:4,y:0},{x:4,y:1},{x:4,y:2},{x:2,y:4},{x:2,y:5},{x:2,y:6}],
+   gems:[{x:3,y:0},{x:3,y:3},{x:6,y:5}],
+   available:['move','turn-left','turn-right','repeat','if-wall'],optimalBlocks:10},
+  // ── WORLD 5: FUNCTION FACTORY ──
+  {id:16,name:"Learn a Trick",emoji:"🎩",concept:"Functions",world:5,worldName:"Function Factory",
+   desc:"NEW: Define 'My Trick' as 3 Moves, then use it to save blocks! Click blocks into the purple area above.",
+   hint:"💡 Define trick: Move, Move, Move. Program: My Trick, Turn Right, Move, Turn Left, My Trick!",
+   gridW:7,gridH:3,start:{x:0,y:0,dir:1},goal:{x:6,y:2},walls:[],gems:[],
+   available:['move','turn-left','turn-right','repeat','if-wall','trick'],optimalBlocks:5},
+  {id:17,name:"Double Square",emoji:"🔲",concept:"Functions + Loops",world:5,worldName:"Function Factory",
+   desc:"The same L-shape pattern appears twice! Define it as a trick to keep your code short.",
+   hint:"💡 Define trick: Repeat(3){Move}, Turn Right. Program: My Trick, My Trick, Repeat(3){Move}!",
+   gridW:7,gridH:7,start:{x:0,y:0,dir:1},goal:{x:6,y:6},
+   walls:[],gems:[{x:3,y:0},{x:6,y:3}],
+   available:['move','turn-left','turn-right','repeat','if-wall','trick'],optimalBlocks:5},
+  {id:18,name:"Trick Maze",emoji:"🌀",concept:"Functions + Conditionals",world:5,worldName:"Function Factory",
+   desc:"This maze has a repeating pattern! Define a 'safe step' trick.",
+   hint:"💡 Define trick: If Wall{Turn Right}, Move. Program: Repeat(10){My Trick}!",
+   gridW:6,gridH:6,start:{x:0,y:0,dir:1},goal:{x:4,y:5},
+   walls:[{x:5,y:0},{x:2,y:1},{x:3,y:1},{x:4,y:1},{x:5,y:1},{x:0,y:3},{x:1,y:3},{x:2,y:3},{x:3,y:3},{x:5,y:4}],
+   gems:[{x:4,y:0},{x:0,y:2},{x:4,y:3}],
+   available:['move','turn-left','turn-right','repeat','if-wall','trick'],optimalBlocks:3},
+  {id:19,name:"Gem Collector Pro",emoji:"💎",concept:"Functions + Gems",world:5,worldName:"Function Factory",
+   desc:"Collect ALL gems! The same pattern repeats on each row. Use a trick!",
+   hint:"💡 Define trick: Repeat(4){Move}. Navigate rows collecting gems with turns!",
+   gridW:5,gridH:5,start:{x:0,y:0,dir:1},goal:{x:4,y:4},walls:[],
+   gems:[{x:1,y:0},{x:2,y:0},{x:3,y:0},{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:1,y:4},{x:2,y:4},{x:3,y:4}],
+   available:['move','turn-left','turn-right','repeat','if-wall','trick'],optimalBlocks:8},
+  {id:20,name:"Function Master!",emoji:"🎓",concept:"Everything!",world:5,worldName:"Function Factory",
+   desc:"The ULTIMATE challenge! Define a smart trick that handles walls AND collects gems!",
+   hint:"💡 Define trick: If Wall{Turn Right}, Move. Program: Repeat(20){My Trick}!",
+   gridW:7,gridH:7,start:{x:0,y:0,dir:1},goal:{x:6,y:6},
+   walls:[{x:3,y:0},{x:3,y:1},{x:5,y:2},{x:1,y:3},{x:2,y:3},{x:3,y:3},{x:5,y:4},{x:5,y:5},{x:1,y:5},{x:2,y:5}],
+   gems:[{x:2,y:0},{x:4,y:2},{x:0,y:4},{x:4,y:4},{x:6,y:5}],
+   available:['move','turn-left','turn-right','repeat','if-wall','trick'],optimalBlocks:3}
+];
+
+const CEL_MSGS=[
+  'You solved it! Cody made it to the star! ⭐',
+  'Amazing work! You learned how to turn! 🌟',
+  'Fantastic! You dodged those walls! 🎊',
+  'Brilliant! Loops make coding so powerful! 🔄',
+  'Champion! You mastered the basics! 🏆',
+  'Incredible staircase pattern! Loops are magic! 🪜',
+  'You collected all the gems! 💎✨',
+  'Gem collector + maze master! 🏰',
+  'You learned conditionals — if wall, turn! 🚧',
+  'Smart Bot activated! Your code thinks for itself! 🧠',
+  'Bug squashed! You\'re a real debugger! 🐛✅',
+  'Gem hunter extraordinaire! 💎🏆',
+  'You conquered the labyrinth! 🏛️',
+  'Bug squashed with conditionals! Amazing! 🔧',
+  'Code Kingdom complete! On to functions! 👑',
+  'You learned your first trick! Functions are powerful! 🎩',
+  'Double patterns, one trick! Code reuse is genius! 🔲',
+  'Your trick navigated the maze — smart coding! 🌀',
+  'Gem Collector Pro with functions — elegant! 💎✨',
+  'FUNCTION MASTER! You understand real programming! 🎓👑'
+];
+
+// ─────────────────────────────────────────────
+//  ACHIEVEMENTS
+// ─────────────────────────────────────────────
+const ACHIEVEMENTS=[
+  {id:'first-steps',emoji:'🌟',name:'First Steps',desc:'Complete Level 1'},
+  {id:'loop-master',emoji:'🔄',name:'Loop Master',desc:'Use a Repeat block'},
+  {id:'gem-collector',emoji:'💎',name:'Gem Collector',desc:'Collect 10 total gems'},
+  {id:'world-champion',emoji:'🏆',name:'World Champion',desc:'Complete all levels in a world'},
+  {id:'perfectionist',emoji:'⭐',name:'Perfectionist',desc:'Get 3 stars on any level'},
+  {id:'function-fan',emoji:'🎩',name:'Function Fan',desc:'Use the My Trick block'},
+  {id:'bug-hunter',emoji:'🐛',name:'Bug Hunter',desc:'Complete a debug level'},
+  {id:'creator',emoji:'🎨',name:'Creator',desc:'Build a sandbox level'},
+  {id:'efficient',emoji:'⚡',name:'Efficient Coder',desc:'Get 3 stars on 5 levels'},
+  {id:'code-master',emoji:'👑',name:'Code Master',desc:'Complete all 20 levels'}
+];
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let state={
+  levelIdx:0, program:[], robot:{x:0,y:0,dir:1},
+  running:false, completed:new Set(), gemsCollected:new Set(),
+  codeViewOpen:false, starRatings:{}, soundEnabled:true,
+  trickDefinition:[], achievements:new Set(), totalGemsCollected:0
+};
+let blockIdCounter=0;
+
+// ─────────────────────────────────────────────
+//  SOUND SYSTEM (Web Audio API)
+// ─────────────────────────────────────────────
+let audioCtx=null;
+function getAudioCtx(){if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playTone(freq,dur,type,vol){
+  if(!state.soundEnabled)return;
+  try{const c=getAudioCtx(),o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(freq,c.currentTime);
+  g.gain.setValueAtTime(vol||0.12,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+  o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+dur);}catch(e){}
+}
+function sfxMove(){playTone(440,0.12,'sine',0.08);setTimeout(()=>playTone(550,0.1,'sine',0.06),50)}
+function sfxTurn(){playTone(660,0.08,'square',0.05)}
+function sfxGem(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,0.15,'sine',0.08),i*60))}
+function sfxWallHit(){playTone(120,0.25,'sawtooth',0.06)}
+function sfxLevelComplete(){[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>playTone(f,0.3,'sine',0.1),i*120))}
+function sfxBlockPlace(){playTone(800,0.04,'sine',0.05)}
+function sfxBadge(){playTone(1047,0.2,'sine',0.08);setTimeout(()=>playTone(1319,0.3,'sine',0.08),100)}
+function toggleSound(){state.soundEnabled=!state.soundEnabled;document.getElementById('btn-mute').textContent=state.soundEnabled?'🔊':'🔇';saveProgress();}
+
+// ─────────────────────────────────────────────
+//  LOCALSTORAGE PERSISTENCE
+// ─────────────────────────────────────────────
+const SAVE_KEY='codequest-save';
+function saveProgress(){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({
+    completed:[...state.completed],starRatings:state.starRatings,
+    totalGemsCollected:state.totalGemsCollected,achievements:[...state.achievements],
+    soundEnabled:state.soundEnabled,trickDefinition:state.trickDefinition,v:1
+  }));}catch(e){}
+}
+function loadProgress(){
+  try{const r=localStorage.getItem(SAVE_KEY);if(!r)return;const d=JSON.parse(r);
+  state.completed=new Set(d.completed||[]);state.starRatings=d.starRatings||{};
+  state.totalGemsCollected=d.totalGemsCollected||0;state.achievements=new Set(d.achievements||[]);
+  state.soundEnabled=d.soundEnabled!==false;state.trickDefinition=d.trickDefinition||[];
+  document.getElementById('btn-mute').textContent=state.soundEnabled?'🔊':'🔇';
+  if(state.trickDefinition.length>0) assignIds(state.trickDefinition);
+  }catch(e){}
+}
+function resetProgress(){
+  if(!confirm('Reset ALL progress? This cannot be undone!'))return;
+  localStorage.removeItem(SAVE_KEY);
+  state.completed=new Set();state.starRatings={};state.totalGemsCollected=0;
+  state.achievements=new Set();state.trickDefinition=[];
+  loadLevel(0);buildProgressDots();renderBadgePanel();
+  setMsg('🔄 Progress reset!','');
+}
+
+// ─────────────────────────────────────────────
+//  STAR RATING
+// ─────────────────────────────────────────────
+function countBlocks(blocks){
+  let c=0;for(const b of blocks){c++;if(b.body)c+=countBlocks(b.body);}return c;
+}
+function calcStars(idx,blockCount){
+  const o=LEVELS[idx].optimalBlocks||999;
+  if(blockCount<=o)return 3;if(blockCount<=o+2)return 2;return 1;
+}
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+function init(){
+  loadProgress();
+  loadLevel(0);
+  buildProgressDots();
+  renderBadgePanel();
+}
+
+function loadLevel(idx){
+  state.levelIdx=idx;state.running=false;state.gemsCollected=new Set();
+  const lv=LEVELS[idx];state.robot={...lv.start};
+
+  if(lv.startProgram){state.program=JSON.parse(JSON.stringify(lv.startProgram));assignIds(state.program);}
+  else{state.program=[];}
+
+  document.getElementById('hdr-title').textContent=`Level ${lv.id} - ${lv.name}`;
+  document.getElementById('hdr-desc').textContent=lv.desc;
+  document.getElementById('hdr-concept').textContent=`Concept: ${lv.concept}`;
+  document.getElementById('level-hint').textContent=lv.hint;
+
+  // Palette locks (including trick)
+  ['move','turn-left','turn-right','repeat','if-wall','trick'].forEach(t=>{
+    const el=document.getElementById('blk-'+t);
+    if(el)el.classList.toggle('locked',!lv.available.includes(t));
+  });
+
+  // Show/hide trick define area
+  const tda=document.getElementById('trick-define-area');
+  tda.style.display=lv.available.includes('trick')?'block':'none';
+
+  drawGrid();renderProgram();renderTrickDefinition();updateGemCounter();
+
+  if(lv.startProgram) setMsg('🐛 This program has a BUG! Can you find and fix it?','msg-hint');
+  else setMsg('🤖 Build your program and press Run!','');
+  setButtons(false);updateDots();
+}
+
+// ─────────────────────────────────────────────
+//  GRID
+// ─────────────────────────────────────────────
+function drawGrid(){
+  const lv=LEVELS[state.levelIdx],g=document.getElementById('grid');
+  g.style.gridTemplateColumns=`repeat(${lv.gridW},62px)`;g.innerHTML='';
+  for(let y=0;y<lv.gridH;y++){for(let x=0;x<lv.gridW;x++){
+    const cell=document.createElement('div');cell.className='cell';cell.id=`cell-${x}-${y}`;
+    const isWall=lv.walls.some(w=>w.x===x&&w.y===y),isGoal=lv.goal.x===x&&lv.goal.y===y,isRobot=state.robot.x===x&&state.robot.y===y;
+    const isGem=lv.gems&&lv.gems.some((g,gi)=>g.x===x&&g.y===y&&!state.gemsCollected.has(gi));
+    const isCollected=lv.gems&&lv.gems.some((g,gi)=>g.x===x&&g.y===y&&state.gemsCollected.has(gi));
+    if(isWall)cell.classList.add('c-wall');
+    else if(isRobot&&isGoal){cell.classList.add('c-robot-goal');cell.innerHTML=`<span class="robot-sprite dir-${state.robot.dir}">🤖</span>`;}
+    else if(isRobot){cell.classList.add('c-robot');cell.innerHTML=`<span class="robot-sprite dir-${state.robot.dir}">🤖</span>`;}
+    else if(isGoal){cell.classList.add('c-goal');cell.textContent='⭐';}
+    else if(isGem){cell.classList.add('c-gem');cell.textContent='💎';}
+    else if(isCollected)cell.classList.add('c-gem-collected');
+    else cell.classList.add('c-empty');
+    g.appendChild(cell);
+  }}
+}
+
+function updateRobotCell(ox,oy,nx,ny){
+  const lv=LEVELS[state.levelIdx];
+  const old=document.getElementById(`cell-${ox}-${oy}`);
+  if(old){old.innerHTML='';old.className='cell';
+    if(lv.goal.x===ox&&lv.goal.y===oy){old.classList.add('c-goal');old.textContent='⭐';}else old.classList.add('c-empty');}
+  const nc=document.getElementById(`cell-${nx}-${ny}`);
+  if(nc){nc.innerHTML='';nc.className='cell';
+    nc.classList.add(lv.goal.x===nx&&lv.goal.y===ny?'c-robot-goal':'c-robot');
+    nc.innerHTML=`<span class="robot-sprite dir-${state.robot.dir}">🤖</span>`;}
+}
+
+// ─────────────────────────────────────────────
+//  PROGRAM RENDERING
+// ─────────────────────────────────────────────
+function makeBlockObj(type){
+  const id='blk-'+(++blockIdCounter);
+  if(type==='repeat')return{type:'repeat',id,count:3,body:[]};
+  if(type==='if-wall')return{type:'if-wall',id,body:[]};
+  if(type==='trick')return{type:'trick',id};
+  return{type,id};
+}
+function assignIds(blocks){blocks.forEach(b=>{if(!b.id)b.id='blk-'+(++blockIdCounter);if(b.body)assignIds(b.body);});}
+
+function blockLabel(b){
+  if(b.type==='move')return'➡️ Move Forward';
+  if(b.type==='turn-left')return'↰ Turn Left';
+  if(b.type==='turn-right')return'↱ Turn Right';
+  if(b.type==='trick')return'🎩 My Trick';
+  return'';
+}
+function blockClass(b){
+  if(b.type==='move')return'b-move';
+  if(b.type==='turn-left'||b.type==='turn-right')return'b-turn';
+  if(b.type==='trick')return'b-trick';
+  return'';
+}
+
+function renderProgram(){
+  const pa=document.getElementById('program-area');pa.innerHTML='';
+  if(state.program.length===0){
+    pa.appendChild(Object.assign(document.createElement('div'),{className:'pa-hint',textContent:'👆 Click a block, then click here!'}));
+  }else{
+    state.program.forEach((b,i)=>{
+      if(b.type==='repeat')pa.appendChild(makeLoopEl(b,i,state.program,'root'));
+      else if(b.type==='if-wall')pa.appendChild(makeIfEl(b,i,state.program,'root'));
+      else pa.appendChild(makeBlockEl(b,i,state.program,'root'));
+    });
+  }
+  updateCodeView();
+}
+
+function makeBlockEl(b,i,arr,scope){
+  const el=document.createElement('div');el.className=`prog-block ${blockClass(b)}`;
+  el.id=`pb-${b.id}`;el.innerHTML=`<span>${blockLabel(b)}</span>`;
+  el.onclick=(e)=>{
+    e.stopPropagation();if(state.running)return;
+    // If a block is selected, place it instead of deleting
+    if(selectedBlockType){
+      const src=scope&&scope.startsWith('sandbox')?'sandbox-palette':'palette';
+      if(selectedBlockSource===src){
+        const lv=LEVELS[state.levelIdx];
+        if(src==='palette'&&!lv.available.includes(selectedBlockType))return;
+        if(selectedBlockType==='trick'&&scope==='trick-def')return;
+        arr.splice(i+1,0,makeBlockObj(selectedBlockType));
+        if(src==='sandbox-palette')renderSandboxProgram();else if(scope==='trick-def')renderTrickDefinition();else renderProgram();
+        sfxBlockPlace();return;
+      }
+    }
+    arr.splice(i,1);
+    if(scope==='trick-def')renderTrickDefinition();else if(scope&&scope.startsWith('sandbox'))renderSandboxProgram();else renderProgram();
+  };
+  return el;
+}
+
+function makeLoopEl(b,idx,arr,scope){
+  const wrap=document.createElement('div');wrap.className='loop-container';wrap.id=`lc-${b.id}`;
+  const hdr=document.createElement('div');hdr.className='loop-header';
+  const lbl=document.createElement('span');lbl.textContent='🔄 Repeat';hdr.appendChild(lbl);
+  const ctrl=document.createElement('div');ctrl.className='loop-count-ctrl';ctrl.onclick=e=>e.stopPropagation();
+  const btnMinus=document.createElement('button');btnMinus.className='lcb';btnMinus.textContent='−';
+  btnMinus.onclick=(e)=>{e.stopPropagation();if(b.count>1){b.count--;renderProgram();}};
+  const numEl=document.createElement('span');numEl.className='lc-num';numEl.textContent=b.count;
+  const btnPlus=document.createElement('button');btnPlus.className='lcb';btnPlus.textContent='+';
+  btnPlus.onclick=(e)=>{e.stopPropagation();if(b.count<9){b.count++;renderProgram();}};
+  const timesLbl=document.createElement('span');timesLbl.textContent=' times';timesLbl.style.cssText='font-size:0.8rem;margin-left:2px';
+  ctrl.appendChild(btnMinus);ctrl.appendChild(numEl);ctrl.appendChild(btnPlus);ctrl.appendChild(timesLbl);
+  hdr.appendChild(ctrl);
+  hdr.onclick=(e)=>{if(e.target===btnMinus||e.target===btnPlus||ctrl.contains(e.target))return;if(selectedBlockType)return;arr.splice(idx,1);if(scope==='trick-def')renderTrickDefinition();else if(scope&&scope.startsWith('sandbox'))renderSandboxProgram();else renderProgram();};
+  wrap.appendChild(hdr);
+  const body=document.createElement('div');body.className='loop-body';body.id=`lb-${b.id}`;
+  body.addEventListener('click',(e)=>{
+    e.stopPropagation();const src=scope.startsWith&&scope.startsWith('sandbox')?'sandbox-palette':'palette';
+    if(!selectedBlockType||selectedBlockSource!==src)return;
+    if(selectedBlockType==='trick'&&scope==='trick-def')return;
+    const lv=LEVELS[state.levelIdx];
+    if(src==='palette'&&!lv.available.includes(selectedBlockType))return;
+    b.body.push(makeBlockObj(selectedBlockType));
+    if(src==='sandbox-palette')renderSandboxProgram();else if(scope==='trick-def')renderTrickDefinition();else renderProgram();
+    sfxBlockPlace();
+  });
+  if(b.body.length===0){body.appendChild(Object.assign(document.createElement('div'),{className:'loop-body-hint',textContent:'Click block here!'}));}
+  else{b.body.forEach((bb,bi)=>{
+    if(bb.type==='repeat')body.appendChild(makeLoopEl(bb,bi,b.body,b.id));
+    else if(bb.type==='if-wall')body.appendChild(makeIfEl(bb,bi,b.body,b.id));
+    else body.appendChild(makeBlockEl(bb,bi,b.body,b.id));
+  });}
+  wrap.appendChild(body);return wrap;
+}
+
+function makeIfEl(b,idx,arr,scope){
+  const wrap=document.createElement('div');wrap.className='if-container';wrap.id=`ic-${b.id}`;
+  const hdr=document.createElement('div');hdr.className='if-header';
+  const lbl=document.createElement('span');lbl.textContent='🚧 If Wall Ahead';hdr.appendChild(lbl);
+  hdr.onclick=(e)=>{if(selectedBlockType)return;arr.splice(idx,1);if(scope==='trick-def')renderTrickDefinition();else if(scope&&scope.startsWith('sandbox'))renderSandboxProgram();else renderProgram();};
+  wrap.appendChild(hdr);
+  const body=document.createElement('div');body.className='if-body';body.id=`ib-${b.id}`;
+  body.addEventListener('click',(e)=>{
+    e.stopPropagation();const src=scope.startsWith&&scope.startsWith('sandbox')?'sandbox-palette':'palette';
+    if(!selectedBlockType||selectedBlockSource!==src)return;
+    if(selectedBlockType==='trick'&&scope==='trick-def')return;
+    const lv=LEVELS[state.levelIdx];
+    if(src==='palette'&&!lv.available.includes(selectedBlockType))return;
+    b.body.push(makeBlockObj(selectedBlockType));
+    if(src==='sandbox-palette')renderSandboxProgram();else if(scope==='trick-def')renderTrickDefinition();else renderProgram();
+    sfxBlockPlace();
+  });
+  if(b.body.length===0){body.appendChild(Object.assign(document.createElement('div'),{className:'if-body-hint',textContent:'Click block for when wall ahead!'}));}
+  else{b.body.forEach((bb,bi)=>{
+    if(bb.type==='repeat')body.appendChild(makeLoopEl(bb,bi,b.body,b.id));
+    else if(bb.type==='if-wall')body.appendChild(makeIfEl(bb,bi,b.body,b.id));
+    else body.appendChild(makeBlockEl(bb,bi,b.body,b.id));
+  });}
+  wrap.appendChild(body);return wrap;
+}
+
+// ─────────────────────────────────────────────
+//  TRICK DEFINITION
+// ─────────────────────────────────────────────
+function renderTrickDefinition(){
+  const zone=document.getElementById('trick-define-zone');if(!zone)return;
+  zone.innerHTML='';
+  if(state.trickDefinition.length===0){
+    zone.innerHTML='<div class="trick-hint">Click a block, then click here to add it!</div>';
+  }else{
+    state.trickDefinition.forEach((b,i)=>{
+      if(b.type==='repeat')zone.appendChild(makeLoopEl(b,i,state.trickDefinition,'trick-def'));
+      else if(b.type==='if-wall')zone.appendChild(makeIfEl(b,i,state.trickDefinition,'trick-def'));
+      else zone.appendChild(makeBlockEl(b,i,state.trickDefinition,'trick-def'));
+    });
+  }
+  updateCodeView();
+}
+
+// (trick placement handled by click handler on trick-define-zone)
+
+// ─────────────────────────────────────────────
+//  CLICK-TO-SELECT / CLICK-TO-PLACE
+// ─────────────────────────────────────────────
+let selectedBlockType=null;
+let selectedBlockSource=null; // 'palette' or 'sandbox-palette'
+
+function selectBlock(type,source){
+  if(selectedBlockType===type&&selectedBlockSource===source){deselectBlock();return;}
+  selectedBlockType=type;selectedBlockSource=source||'palette';
+  document.querySelectorAll('.block-item.selected').forEach(el=>el.classList.remove('selected'));
+  const scope=source==='sandbox-palette'?'#sandbox-palette ':'';
+  document.querySelectorAll(scope+`.block-item[data-type="${type}"]`).forEach(el=>el.classList.add('selected'));
+}
+function deselectBlock(){
+  selectedBlockType=null;selectedBlockSource=null;
+  document.querySelectorAll('.block-item.selected').forEach(el=>el.classList.remove('selected'));
+}
+
+// Palette click handlers
+document.querySelectorAll('.palette .block-item').forEach(el=>{
+  el.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    if(el.classList.contains('locked'))return;
+    selectBlock(el.dataset.type,'palette');
+  });
+});
+
+// Click-to-place in main program area
+document.getElementById('program-area').addEventListener('click',(e)=>{
+  if(!selectedBlockType||selectedBlockSource!=='palette')return;
+  const lv=LEVELS[state.levelIdx];if(!lv.available.includes(selectedBlockType))return;
+  state.program.push(makeBlockObj(selectedBlockType));
+  renderProgram();sfxBlockPlace();
+});
+
+// Click-to-place in trick definition zone
+document.getElementById('trick-define-zone').addEventListener('click',(e)=>{
+  if(!selectedBlockType||selectedBlockSource!=='palette')return;
+  if(selectedBlockType==='trick')return; // can't put trick inside trick
+  const lv=LEVELS[state.levelIdx];if(!lv.available.includes(selectedBlockType))return;
+  state.trickDefinition.push(makeBlockObj(selectedBlockType));
+  renderTrickDefinition();sfxBlockPlace();saveProgress();
+});
+
+// Click-to-place in sandbox program area
+document.getElementById('sandbox-program-area').addEventListener('click',(e)=>{
+  if(!selectedBlockType||selectedBlockSource!=='sandbox-palette')return;
+  if(!sandbox.active)return;
+  sandbox.program.push(makeBlockObj(selectedBlockType));
+  renderSandboxProgram();sfxBlockPlace();
+});
+
+// Click anywhere else deselects
+document.addEventListener('click',(e)=>{
+  if(!selectedBlockType)return;
+  if(e.target.closest('.block-item')||e.target.closest('.program-area')||
+     e.target.closest('.trick-define-zone')||e.target.closest('.loop-body')||
+     e.target.closest('.if-body'))return;
+  deselectBlock();
+});
+
+// ─────────────────────────────────────────────
+//  EXECUTION
+// ─────────────────────────────────────────────
+const DIRS=[{x:0,y:-1},{x:1,y:0},{x:0,y:1},{x:-1,y:0}];
+function delay(ms){return new Promise(r=>setTimeout(r,ms))}
+function clearHighlights(){document.querySelectorAll('.active-step').forEach(el=>el.classList.remove('active-step'))}
+function highlightBlock(b){clearHighlights();if(!b||!b.id)return;
+  const el=document.getElementById(`pb-${b.id}`)||document.getElementById(`lc-${b.id}`)||document.getElementById(`ic-${b.id}`);
+  if(el)el.classList.add('active-step');
+}
+
+function isWallAhead(){
+  const lv=LEVELS[state.levelIdx],d=DIRS[state.robot.dir];
+  const nx=state.robot.x+d.x,ny=state.robot.y+d.y;
+  if(nx<0||nx>=lv.gridW||ny<0||ny>=lv.gridH)return true;
+  return lv.walls.some(w=>w.x===nx&&w.y===ny);
+}
+function checkGoalAndGems(){
+  const lv=LEVELS[state.levelIdx];
+  if(state.robot.x!==lv.goal.x||state.robot.y!==lv.goal.y)return false;
+  if(lv.gems&&lv.gems.length>0)return state.gemsCollected.size>=lv.gems.length;
+  return true;
+}
+function collectGem(){
+  const lv=LEVELS[state.levelIdx];if(!lv.gems)return;
+  const gi=lv.gems.findIndex((g,i)=>g.x===state.robot.x&&g.y===state.robot.y&&!state.gemsCollected.has(i));
+  if(gi>=0){state.gemsCollected.add(gi);state.totalGemsCollected++;updateGemCounter();sfxGem();
+    const cell=document.getElementById(`cell-${state.robot.x}-${state.robot.y}`);
+    if(cell)cell.classList.replace('c-gem','c-gem-collected');
+  }
+}
+
+class StopExecution extends Error{}
+
+async function executeBlocks(blocks){
+  for(let i=0;i<blocks.length;i++){
+    if(!state.running)throw new StopExecution();
+    const b=blocks[i];
+    if(b.type==='repeat'){highlightBlock(b);await delay(200);for(let r=0;r<b.count;r++){await executeBlocks(b.body);}}
+    else if(b.type==='if-wall'){highlightBlock(b);await delay(200);if(isWallAhead()){await executeBlocks(b.body);}}
+    else if(b.type==='trick'){
+      highlightBlock(b);await delay(200);
+      if(state.trickDefinition.length===0){setMsg('🎩 Your trick is empty! Define it first!','msg-err');throw new StopExecution();}
+      const copy=JSON.parse(JSON.stringify(state.trickDefinition));assignIds(copy);await executeBlocks(copy);
+    }
+    else if(b.type==='move'){
+      highlightBlock(b);const lv=LEVELS[state.levelIdx],d=DIRS[state.robot.dir];
+      const nx=state.robot.x+d.x,ny=state.robot.y+d.y;
+      if(nx<0||nx>=lv.gridW||ny<0||ny>=lv.gridH){sfxWallHit();setMsg('💥 Oops! Cody ran off the edge!','msg-err');shakeRobot();state.collision=true;throw new StopExecution();}
+      if(lv.walls.some(w=>w.x===nx&&w.y===ny)){sfxWallHit();setMsg('🧱 Oops! Cody hit a wall!','msg-err');shakeRobot();state.collision=true;throw new StopExecution();}
+      const ox=state.robot.x,oy=state.robot.y;state.robot.x=nx;state.robot.y=ny;
+      updateRobotCell(ox,oy,nx,ny);collectGem();sfxMove();await delay(350);
+      if(checkGoalAndGems()){state.success=true;throw new StopExecution();}
+    }
+    else if(b.type==='turn-left'){highlightBlock(b);state.robot.dir=(state.robot.dir+3)%4;refreshRobotSprite();sfxTurn();await delay(280);}
+    else if(b.type==='turn-right'){highlightBlock(b);state.robot.dir=(state.robot.dir+1)%4;refreshRobotSprite();sfxTurn();await delay(280);}
+  }
+}
+
+async function runProgram(){
+  if(state.running)return;
+  if(state.program.length===0){setMsg('😅 Add some blocks first!','msg-err');return;}
+  state.running=true;state.success=false;state.collision=false;
+  state.gemsCollected=new Set();
+  const lv=LEVELS[state.levelIdx];state.robot={...lv.start};
+  drawGrid();updateGemCounter();setButtons(true);
+  setMsg('🏃 Running your program...','msg-hint');
+  try{await executeBlocks(state.program);}catch(e){if(!(e instanceof StopExecution))throw e;}
+  clearHighlights();state.running=false;setButtons(false);
+  if(state.success){await delay(200);celebrate();}
+  else if(!state.collision){
+    const lv2=LEVELS[state.levelIdx];
+    if(lv2.gems&&lv2.gems.length>0&&state.robot.x===lv2.goal.x&&state.robot.y===lv2.goal.y)
+      setMsg('💎 You reached the star but missed some gems!','msg-err');
+    else setMsg('🤔 Almost! Cody didn\'t reach the star.','msg-err');
+  }
+}
+
+function refreshRobotSprite(){const el=document.querySelector('.robot-sprite');if(el){el.className=`robot-sprite dir-${state.robot.dir}`;el.style.animation='none';el.offsetHeight;el.style.animation='';}}
+function shakeRobot(){const el=document.querySelector('.robot-sprite');if(el){el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),500);}}
+function updateGemCounter(){const lv=LEVELS[state.levelIdx],gc=document.getElementById('gem-counter');if(!lv.gems||lv.gems.length===0){gc.classList.add('hidden');return;}gc.classList.remove('hidden');document.getElementById('gem-count').textContent=`${state.gemsCollected.size} / ${lv.gems.length}`;}
+function setButtons(r){document.getElementById('btn-run').disabled=r;document.getElementById('btn-reset').disabled=r;document.getElementById('btn-clear').disabled=r;}
+function setMsg(t,c){const m=document.getElementById('msg-box');m.textContent=t;m.className='msg-box '+(c||'');}
+
+// ─────────────────────────────────────────────
+//  CONTROLS
+// ─────────────────────────────────────────────
+function resetLevel(){
+  if(state.running){state.running=false;}
+  setTimeout(()=>{const lv=LEVELS[state.levelIdx];state.robot={...lv.start};state.gemsCollected=new Set();
+  drawGrid();updateGemCounter();setMsg('↺ Reset! Try again 💪','');clearHighlights();setButtons(false);},50);
+}
+function clearProgram(){if(state.running)return;state.program=[];renderProgram();setMsg('🗑 Program cleared!','');}
+
+// ─────────────────────────────────────────────
+//  CELEBRATION (with star rating)
+// ─────────────────────────────────────────────
+function celebrate(){
+  const lv=LEVELS[state.levelIdx];
+  const blockCount=countBlocks(state.program)+countBlocks(state.trickDefinition);
+  const stars=calcStars(state.levelIdx,blockCount);
+
+  if(!state.starRatings[state.levelIdx]||stars>state.starRatings[state.levelIdx])
+    state.starRatings[state.levelIdx]=stars;
+
+  state.completed.add(state.levelIdx);
+  saveProgress();updateDots();
+
+  document.getElementById('cel-emoji').textContent=lv.emoji;
+  document.getElementById('cel-title').textContent=state.levelIdx===LEVELS.length-1?'FUNCTION MASTER! 🎓':'Level Complete! 🎉';
+  document.getElementById('cel-msg').textContent=CEL_MSGS[state.levelIdx]||'Amazing!';
+  document.getElementById('cel-stars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+
+  const optHint=document.getElementById('cel-opt-hint');
+  if(stars<3)optHint.textContent=`You used ${blockCount} blocks. Can you do it in ${lv.optimalBlocks}? ⚡`;
+  else optHint.textContent='Perfect! Optimal solution! ⚡';
+
+  const btnNext=document.getElementById('btn-next');
+  btnNext.textContent=state.levelIdx>=LEVELS.length-1?'🎮 Play Again!':'Next Level →';
+
+  document.getElementById('celebration').classList.add('show');
+  sfxLevelComplete();spawnConfetti();
+  checkAchievements();
+}
+
+function nextLevel(){
+  document.getElementById('celebration').classList.remove('show');
+  document.querySelectorAll('.confetti-piece').forEach(e=>e.remove());
+  if(state.levelIdx>=LEVELS.length-1)loadLevel(0);else loadLevel(state.levelIdx+1);
+}
+
+function spawnConfetti(){
+  const colors=['#ffd700','#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#f8b500','#a855f7','#10b981'];
+  for(let i=0;i<60;i++){const p=document.createElement('div');p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}vw;width:${6+Math.random()*10}px;height:${6+Math.random()*10}px;background:${colors[Math.floor(Math.random()*colors.length)]};--dur:${2+Math.random()*2}s;--delay:${Math.random()*0.8}s;--spin:${360+Math.random()*360}deg;`;
+    document.body.appendChild(p);setTimeout(()=>p.remove(),5500);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  PROGRESS DOTS (with star indicators)
+// ─────────────────────────────────────────────
+function buildProgressDots(){
+  const c=document.getElementById('progress-dots');c.innerHTML='';let lw=0;
+  LEVELS.forEach((lv,i)=>{
+    if(lv.world!==lw){if(lw>0){const d=document.createElement('div');d.className='world-divider';c.appendChild(d);}lw=lv.world;}
+    const dot=document.createElement('div');dot.className='dot';dot.id=`dot-${i}`;
+    dot.title=`Level ${lv.id}: ${lv.name} (${lv.worldName})`;dot.textContent=lv.emoji;
+    dot.onclick=()=>{if(state.running)return;if(i===0||state.completed.has(i-1)||state.completed.has(i)){if(state.levelIdx!==i)loadLevel(i);}};
+    c.appendChild(dot);
+  });updateDots();
+}
+
+function updateDots(){
+  LEVELS.forEach((_,i)=>{
+    const dot=document.getElementById(`dot-${i}`);if(!dot)return;
+    dot.className='dot';
+    if(state.completed.has(i)){dot.classList.add('completed');
+      const s=state.starRatings[i]||1;if(s===3)dot.classList.add('dot-3star');else if(s===2)dot.classList.add('dot-2star');
+    }
+    else if(i===state.levelIdx)dot.classList.add('active');
+    else if(i===0||state.completed.has(i-1)){}
+    else dot.classList.add('locked');
+  });
+}
+
+// ─────────────────────────────────────────────
+//  CODE VIEW (with function definition)
+// ─────────────────────────────────────────────
+function toggleCodeView(){
+  state.codeViewOpen=!state.codeViewOpen;
+  document.getElementById('code-view').classList.toggle('show',state.codeViewOpen);
+  document.getElementById('code-toggle').textContent=state.codeViewOpen?'👁 Hide Code':'👁 Show Code';
+  updateCodeView();
+}
+
+function generateCode(blocks,indent){
+  indent=indent||0;const pad='  '.repeat(indent);let out='';
+  for(const b of blocks){
+    if(b.type==='move')out+=pad+'<span class="fn">moveForward</span>();\n';
+    else if(b.type==='turn-left')out+=pad+'<span class="fn">turnLeft</span>();\n';
+    else if(b.type==='turn-right')out+=pad+'<span class="fn">turnRight</span>();\n';
+    else if(b.type==='trick')out+=pad+'<span class="fn">myTrick</span>();\n';
+    else if(b.type==='repeat'){out+=pad+'<span class="kw">repeat</span>(<span class="num">'+b.count+'</span>) <span class="br">{</span>\n';out+=generateCode(b.body,indent+1);out+=pad+'<span class="br">}</span>\n';}
+    else if(b.type==='if-wall'){out+=pad+'<span class="kw">if</span> (<span class="fn">wallAhead</span>()) <span class="br">{</span>\n';out+=generateCode(b.body,indent+1);out+=pad+'<span class="br">}</span>\n';}
+  }
+  return out;
+}
+
+function updateCodeView(){
+  const cv=document.getElementById('code-view');if(!state.codeViewOpen)return;
+  let code='';
+  if(state.trickDefinition.length>0){
+    code+='<span class="kw">function</span> <span class="fn">myTrick</span>() <span class="br">{</span>\n';
+    code+=generateCode(state.trickDefinition,1);code+='<span class="br">}</span>\n\n';
+  }
+  if(state.program.length===0&&state.trickDefinition.length===0){
+    cv.innerHTML='<span class="cm">// Your code will appear here!</span>\n<span class="cm">// Click blocks to get started.</span>';
+  }else{code+=generateCode(state.program);cv.innerHTML=code;}
+}
+
+// ─────────────────────────────────────────────
+//  ACHIEVEMENTS
+// ─────────────────────────────────────────────
+function programContainsType(blocks,type){for(const b of blocks){if(b.type===type)return true;if(b.body&&programContainsType(b.body,type))return true;}return false;}
+
+function checkAchievements(){
+  const newB=[];
+  function chk(id,cond){if(cond&&!state.achievements.has(id)){state.achievements.add(id);newB.push(id);}}
+
+  chk('first-steps',state.completed.has(0));
+  chk('loop-master',programContainsType(state.program,'repeat'));
+  chk('gem-collector',state.totalGemsCollected>=10);
+  chk('perfectionist',Object.values(state.starRatings).some(s=>s===3));
+  chk('function-fan',programContainsType(state.program,'trick'));
+  chk('bug-hunter',LEVELS[state.levelIdx].startProgram&&state.completed.has(state.levelIdx));
+  chk('efficient',Object.values(state.starRatings).filter(s=>s===3).length>=5);
+  chk('code-master',state.completed.size>=20);
+
+  // World champion: all levels in any world
+  const worlds={};LEVELS.forEach((lv,i)=>{if(!worlds[lv.world])worlds[lv.world]=[];worlds[lv.world].push(i);});
+  for(const indices of Object.values(worlds)){if(indices.every(i=>state.completed.has(i))){chk('world-champion',true);break;}}
+
+  newB.forEach((id,i)=>setTimeout(()=>showBadgeToast(id),i*1500));
+  renderBadgePanel();saveProgress();
+}
+
+function showBadgeToast(id){
+  const a=ACHIEVEMENTS.find(x=>x.id===id);if(!a)return;
+  const t=document.getElementById('toast');
+  document.getElementById('toast-emoji').textContent=a.emoji;
+  document.getElementById('toast-text').textContent=`Badge: ${a.name}!`;
+  t.classList.add('show');sfxBadge();
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function renderBadgePanel(){
+  const p=document.getElementById('badge-panel');p.innerHTML='';
+  ACHIEVEMENTS.forEach(a=>{
+    const el=document.createElement('div');el.className='badge-item'+(state.achievements.has(a.id)?' earned':'');
+    el.innerHTML=`<span class="badge-emoji">${a.emoji}</span><span>${a.name}</span>`;el.title=a.desc;
+    p.appendChild(el);
+  });
+  document.getElementById('badge-count').textContent=`${state.achievements.size}/${ACHIEVEMENTS.length}`;
+}
+
+function toggleBadgePanel(){document.getElementById('badge-panel').classList.toggle('show');}
+
+// ─────────────────────────────────────────────
+//  SANDBOX / CREATIVE MODE
+// ─────────────────────────────────────────────
+let sandbox={active:false,tool:'wall',gridW:8,gridH:8,walls:[],gems:[],
+  start:{x:0,y:0,dir:1},goal:{x:7,y:7},program:[],robot:{x:0,y:0,dir:1},
+  running:false,gemsCollected:new Set()};
+
+function openSandbox(){
+  sandbox={active:true,tool:'wall',gridW:8,gridH:8,walls:[],gems:[],
+    start:{x:0,y:0,dir:1},goal:{x:7,y:7},program:[],robot:{x:0,y:0,dir:1},
+    running:false,gemsCollected:new Set()};
+  document.getElementById('sandbox-overlay').classList.add('show');
+  drawSandboxGrid();setSandboxTool('wall');buildSandboxPalette();
+  // Check creator achievement
+  if(!state.achievements.has('creator')){state.achievements.add('creator');showBadgeToast('creator');renderBadgePanel();saveProgress();}
+}
+function closeSandbox(){sandbox.active=false;sandbox.running=false;document.getElementById('sandbox-overlay').classList.remove('show');}
+
+function setSandboxTool(t){sandbox.tool=t;document.querySelectorAll('.stool').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('stool-'+t);if(el)el.classList.add('active');}
+
+function buildSandboxPalette(){
+  const p=document.getElementById('sandbox-palette');p.innerHTML='';
+  const types=[{t:'move',cls:'b-move',icon:'➡️',label:'Move'},{t:'turn-left',cls:'b-turn',icon:'↰',label:'Turn L'},
+    {t:'turn-right',cls:'b-turn',icon:'↱',label:'Turn R'},{t:'repeat',cls:'b-loop',icon:'🔄',label:'Repeat'},
+    {t:'if-wall',cls:'b-if',icon:'🚧',label:'If Wall'},{t:'trick',cls:'b-trick',icon:'🎩',label:'Trick'}];
+  types.forEach(({t,cls,icon,label})=>{
+    const el=document.createElement('div');el.className=`block-item ${cls}`;el.dataset.type=t;
+    el.innerHTML=`<span class="block-icon">${icon}</span> ${label}`;
+    el.addEventListener('click',(e)=>{e.stopPropagation();selectBlock(t,'sandbox-palette');});
+    p.appendChild(el);
+  });
+}
+
+function drawSandboxGrid(){
+  const g=document.getElementById('sandbox-grid');
+  g.style.gridTemplateColumns=`repeat(${sandbox.gridW},62px)`;g.innerHTML='';
+  for(let y=0;y<sandbox.gridH;y++){for(let x=0;x<sandbox.gridW;x++){
+    const cell=document.createElement('div');cell.className='cell';cell.id=`scell-${x}-${y}`;
+    const isW=sandbox.walls.some(w=>w.x===x&&w.y===y),isG=sandbox.goal.x===x&&sandbox.goal.y===y;
+    const isS=sandbox.robot.x===x&&sandbox.robot.y===y,isGem=sandbox.gems.some(g=>g.x===x&&g.y===y&&!sandbox.gemsCollected.has(sandbox.gems.indexOf(g)));
+    if(isW)cell.classList.add('c-wall');
+    else if(isS){cell.classList.add(isG?'c-robot-goal':'c-robot');cell.innerHTML=`<span class="robot-sprite dir-${sandbox.robot.dir}">🤖</span>`;}
+    else if(isG){cell.classList.add('c-goal');cell.textContent='⭐';}
+    else if(isGem){cell.classList.add('c-gem');cell.textContent='💎';}
+    else cell.classList.add('c-empty');
+    cell.onclick=()=>onSandboxCellClick(x,y);
+    g.appendChild(cell);
+  }}
+}
+
+function onSandboxCellClick(x,y){
+  if(sandbox.running)return;const t=sandbox.tool;
+  if(t==='wall'){const i=sandbox.walls.findIndex(w=>w.x===x&&w.y===y);if(i>=0)sandbox.walls.splice(i,1);else sandbox.walls.push({x,y});}
+  else if(t==='gem'){const i=sandbox.gems.findIndex(g=>g.x===x&&g.y===y);if(i>=0)sandbox.gems.splice(i,1);else sandbox.gems.push({x,y});}
+  else if(t==='start'){sandbox.start={x,y,dir:1};sandbox.robot={...sandbox.start};}
+  else if(t==='goal'){sandbox.goal={x,y};}
+  else if(t==='erase'){sandbox.walls=sandbox.walls.filter(w=>!(w.x===x&&w.y===y));sandbox.gems=sandbox.gems.filter(g=>!(g.x===x&&g.y===y));}
+  drawSandboxGrid();
+}
+
+// (sandbox placement handled by click handler on sandbox-program-area)
+
+function renderSandboxProgram(){
+  const pa=document.getElementById('sandbox-program-area');pa.innerHTML='';
+  if(sandbox.program.length===0){pa.appendChild(Object.assign(document.createElement('div'),{className:'pa-hint',textContent:'Build your program!'}));}
+  else{sandbox.program.forEach((b,i)=>{
+    if(b.type==='repeat')pa.appendChild(makeLoopEl(b,i,sandbox.program,'sandbox-root'));
+    else if(b.type==='if-wall')pa.appendChild(makeIfEl(b,i,sandbox.program,'sandbox-root'));
+    else pa.appendChild(makeBlockEl(b,i,sandbox.program,'sandbox-root'));
+  });}
+}
+
+async function runSandbox(){
+  if(sandbox.running)return;if(sandbox.program.length===0){document.getElementById('sandbox-msg').textContent='😅 Add some blocks!';return;}
+  // Temporarily swap state for execution
+  const saved={levelIdx:state.levelIdx,program:state.program,robot:{...state.robot},running:state.running,gemsCollected:new Set([...state.gemsCollected]),success:state.success,collision:state.collision};
+  const vLv={gridW:sandbox.gridW,gridH:sandbox.gridH,start:sandbox.start,goal:sandbox.goal,walls:sandbox.walls,gems:sandbox.gems,available:['move','turn-left','turn-right','repeat','if-wall','trick']};
+  const tmpIdx=LEVELS.length;LEVELS.push(vLv);
+  state.levelIdx=tmpIdx;state.program=sandbox.program;state.robot={...sandbox.start};
+  state.running=true;state.gemsCollected=new Set();sandbox.running=true;sandbox.gemsCollected=new Set();
+  sandbox.robot={...sandbox.start};
+  document.getElementById('sandbox-msg').textContent='🏃 Running...';
+
+  // Override cell IDs for sandbox
+  const origDrawGrid=drawGrid;
+  drawSandboxGrid();
+
+  try{await executeBlocks(sandbox.program);}catch(e){if(!(e instanceof StopExecution))throw e;}
+
+  LEVELS.splice(tmpIdx,1);state.levelIdx=saved.levelIdx;state.program=saved.program;
+  state.robot=saved.robot;state.running=saved.running;state.gemsCollected=saved.gemsCollected;
+  state.success=saved.success;state.collision=saved.collision;
+  sandbox.running=false;
+  document.getElementById('sandbox-msg').textContent=state.success?'🎉 Cody reached the star!':'🤔 Try again!';
+}
+
+function resetSandbox(){sandbox.running=false;sandbox.robot={...sandbox.start};sandbox.gemsCollected=new Set();drawSandboxGrid();document.getElementById('sandbox-msg').textContent='↺ Reset!';}
+function clearSandboxProgram(){sandbox.program=[];renderSandboxProgram();document.getElementById('sandbox-msg').textContent='🗑 Cleared!';}
+
+function sandboxShare(){
+  const d={w:sandbox.gridW,h:sandbox.gridH,s:[sandbox.start.x,sandbox.start.y,sandbox.start.dir],g:[sandbox.goal.x,sandbox.goal.y],wa:sandbox.walls.map(w=>[w.x,w.y]),ge:sandbox.gems.map(g=>[g.x,g.y])};
+  const code=btoa(JSON.stringify(d));
+  navigator.clipboard.writeText(code).then(()=>{document.getElementById('sandbox-msg').textContent='📋 Level code copied!';}).catch(()=>prompt('Copy this level code:',code));
+}
+function sandboxLoad(){
+  const code=prompt('Paste a level code:');if(!code)return;
+  try{const d=JSON.parse(atob(code));sandbox.gridW=d.w||8;sandbox.gridH=d.h||8;
+    sandbox.start={x:d.s[0],y:d.s[1],dir:d.s[2]||1};sandbox.goal={x:d.g[0],y:d.g[1]};
+    sandbox.walls=(d.wa||[]).map(([x,y])=>({x,y}));sandbox.gems=(d.ge||[]).map(([x,y])=>({x,y}));
+    sandbox.robot={...sandbox.start};drawSandboxGrid();
+    document.getElementById('sandbox-msg').textContent='✅ Level loaded!';
+  }catch(e){document.getElementById('sandbox-msg').textContent='❌ Invalid code!';}
+}
+
+// ─────────────────────────────────────────────
+//  CLOSE CELEBRATION ON BACKDROP CLICK
+// ─────────────────────────────────────────────
+document.getElementById('celebration').addEventListener('click',(e)=>{
+  if(e.target===document.getElementById('celebration'))nextLevel();
+});
+
+// ─────────────────────────────────────────────
+//  START
+// ─────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
