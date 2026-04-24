@@ -993,14 +993,36 @@ function openHelp() { document.getElementById('help-modal').classList.add('on');
 function closeHelp() { document.getElementById('help-modal').classList.remove('on'); }
 
 // ═══════════════════════════════════════════
+//  SHUFFLE QUEUE — ensures no repeats until all words played
+// ═══════════════════════════════════════════
+const QK = 'kwQueue';
+function nextPracticeWord() {
+  let queue = [];
+  try { queue = JSON.parse(localStorage.getItem(QK) || '[]'); } catch(e) {}
+  // Remove words no longer in the list, and the current target
+  queue = queue.filter(w => WORDS.includes(w) && w !== target);
+  // Refill queue when empty (or < 5 left) — shuffle all words except current
+  if (queue.length < 5) {
+    const pool = WORDS.filter(w => w !== target);
+    // Fisher-Yates shuffle
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    queue = pool;
+  }
+  const word = queue.shift();
+  try { localStorage.setItem(QK, JSON.stringify(queue)); } catch(e) {}
+  return word;
+}
+
+// ═══════════════════════════════════════════
 //  PLAY AGAIN (practice mode — new random word)
 // ═══════════════════════════════════════════
 function playAgain() {
   closeModal();
   guesses = []; current = ''; gState = 'playing'; keyMap = {}; hintsUsed = new Set(); busy = false;
-  // Pick a fresh random word different from today's
-  const others = WORDS.filter(w => w !== target);
-  target = others[Math.floor(Math.random() * others.length)];
+  target = nextPracticeWord();
   buildBoard();
   document.getElementById('vowel-display').innerHTML = '';
   document.getElementById('vowel-display').classList.remove('on');
