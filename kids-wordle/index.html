@@ -838,7 +838,9 @@ const SK = 'kidsWordle2';
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(SK)||'{}');
-    if (d.day === todayKey()) {
+    // In challenge mode, never restore saved game state — each challenge starts fresh.
+    // Still return the current streak so it can be displayed.
+    if (!isChallenge && d.day === todayKey()) {
       guesses   = d.guesses   || [];
       gState    = d.gState    || 'playing';
       hintsUsed = new Set(d.hints || []);
@@ -849,6 +851,8 @@ function load() {
   } catch(e){ return { streak:0, lastWin:'' }; }
 }
 function save(streak, lastWin) {
+  // Don't persist challenges — they shouldn't overwrite the daily-word progress
+  if (isChallenge) return;
   try {
     const prev = JSON.parse(localStorage.getItem(SK)||'{}');
     localStorage.setItem(SK, JSON.stringify({
@@ -864,6 +868,8 @@ function save(streak, lastWin) {
 function getStreak() { try { return JSON.parse(localStorage.getItem(SK)||'{}').streak||0; } catch(e){ return 0; } }
 function getLastWin() { try { return JSON.parse(localStorage.getItem(SK)||'{}').lastWin||''; } catch(e){ return ''; } }
 function calcStreak(won) {
+  // Challenges don't affect the daily-word streak
+  if (isChallenge) return getStreak();
   let s = getStreak(), lw = getLastWin(), today = todayKey();
   if (won) {
     if (lw === today) return s; // already counted
