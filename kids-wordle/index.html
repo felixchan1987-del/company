@@ -495,13 +495,15 @@
       margin-bottom: 12px; line-height: 1.5; font-family: monospace;
       -webkit-user-select: text; user-select: text;
     }
-    .copy-btn {
-      background: linear-gradient(135deg,#74c0fc,#3b9edd); color: white;
-      border: none; padding: 10px 28px; border-radius: 50px;
-      font-family: 'Fredoka One', cursive; font-size: 1.1rem; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(59,158,221,.35); transition: transform .15s;
+    .link-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .copy-btn, .open-btn {
+      border: none; padding: 10px 22px; border-radius: 50px;
+      font-family: 'Fredoka One', cursive; font-size: 1.05rem; cursor: pointer;
+      color: white; transition: transform .15s, box-shadow .15s;
     }
-    .copy-btn:active { transform: scale(.92); }
+    .copy-btn { background: linear-gradient(135deg,#74c0fc,#3b9edd); box-shadow: 0 4px 12px rgba(59,158,221,.35); }
+    .open-btn { background: linear-gradient(135deg,#ffb347,#ff7b00); box-shadow: 0 4px 12px rgba(255,123,0,.35); }
+    .copy-btn:active, .open-btn:active { transform: scale(.92); }
     .copy-ok { font-size: .88rem; font-weight: 800; color: #0da860; margin-top: 8px; display: none; }
     .copy-ok.on { display: block; }
     .cr-err { font-size: .82rem; font-weight: 800; color: #dc2626; text-align: center; margin-top: 6px; display: none; }
@@ -602,7 +604,7 @@
     <p style="font-size:.86rem;font-weight:800;color:#64748b;line-height:2">
       💡 <b>Vowel Hint</b> — see which vowels are in the word<br>
       🔤 <b>Letter Hint</b> — reveal one correct letter's position<br>
-      🖼️ <b>Emoji Clue</b> — appears after 3 wrong guesses<br>
+      🖼️ <b>Emoji Clue</b> — appears after 4 wrong guesses<br>
       🔥 <b>Streak</b> — how many days in a row you've won!
     </p>
   </div>
@@ -637,7 +639,7 @@
     </div>
 
     <!-- Emoji clue picker -->
-    <label class="cr-label">Pick an emoji clue (shows after 3 wrong guesses 🖼️)</label>
+    <label class="cr-label">Pick an emoji clue (shows after 4 wrong guesses 🖼️)</label>
     <div class="emoji-pick" id="emoji-pick"></div>
 
     <!-- Hint text -->
@@ -654,7 +656,10 @@
     <div class="link-result" id="link-result">
       <div class="link-result-h">🎉 Your Wordle is ready! Share this link:</div>
       <div class="link-box" id="link-box"></div>
-      <button class="copy-btn" onclick="copyLink()">📋 Copy Link!</button>
+      <div class="link-actions">
+        <button class="copy-btn" onclick="copyLink()">📋 Copy Link!</button>
+        <button class="open-btn" onclick="openLink()">🚀 Open Link!</button>
+      </div>
       <div class="copy-ok" id="copy-ok">✅ Copied! Send it to your friend!</div>
     </div>
   </div>
@@ -953,7 +958,7 @@ function renderRestored() {
   // hints
   if (hintsUsed.has('vowel')) renderVowelHint();
   if (hintsUsed.has('letter')) document.getElementById('btn-letter').disabled = true;
-  if (guesses.length >= 3 && gState === 'playing') showEmojiClue();
+  if (guesses.length >= 4 && gState === 'playing') showEmojiClue();
 }
 
 // ═══════════════════════════════════════════
@@ -1043,7 +1048,7 @@ function submitGuess() {
       calcStreak(false);
       setTimeout(() => { sfx('lose'); showModal(false, ROWS, getStreak()); }, 1600);
     }
-    if (guesses.length >= 3 && gState === 'playing') showEmojiClue();
+    if (guesses.length >= 4 && gState === 'playing') showEmojiClue();
   }, afterFlip);
 }
 
@@ -1365,6 +1370,11 @@ function makeLink() {
   document.getElementById('link-result').classList.add('on');
   document.getElementById('copy-ok').classList.remove('on');
   sfx('hint');
+}
+
+function openLink() {
+  const url = document.getElementById('link-box').textContent;
+  if (url) { sfx('hint'); window.open(url, '_blank'); }
 }
 
 function copyLink() {
